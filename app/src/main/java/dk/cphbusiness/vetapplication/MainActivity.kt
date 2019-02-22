@@ -13,5 +13,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         simple_list_button.onClick { startActivity<SimpleActivity>() }
         adapter_list_button.onClick { startActivity<AdapterActivity>() }
+        recycle_view_button.onClick { startActivity<RecyclerActivity>() }
     }
 }
