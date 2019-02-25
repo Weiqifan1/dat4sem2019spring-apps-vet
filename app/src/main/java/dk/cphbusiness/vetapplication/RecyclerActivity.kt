@@ -36,7 +36,6 @@ class PetRecyclerAdapter(val pets: List<Pet>) :
         view.onClick {
             val name = view.findViewById<TextView>(R.id.name_label).text
             parent.context.toast("Clicked! ${name}")
-            Log.d("FROM HOLDER", "Clicked")
             }
         return ViewHolder(view)
         }
