@@ -3,9 +3,10 @@ package dk.cphbusiness.vetapplication
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import org.jetbrains.anko.db.*
+import java.lang.IllegalArgumentException
 
 class VetBaseOpenHelper(context: Context) :
-    ManagedSQLiteOpenHelper(context, "VetBase", null, 1) {
+    ManagedSQLiteOpenHelper(context, "VetBase", null, 2) {
     companion object {
         private var instance: VetBaseOpenHelper? = null
 
@@ -20,32 +21,46 @@ class VetBaseOpenHelper(context: Context) :
 
     override fun onCreate(db: SQLiteDatabase) {
         // Here you create tables
-        db.createTable("Pets", true,
-            "id" to INTEGER + PRIMARY_KEY + UNIQUE,
-            "name" to TEXT,
-            "alive" to INTEGER
+        db.createTable(Pet.TABLE_NAME, true,
+            Pet.DTYPE to TEXT,
+            Pet.ID to INTEGER + PRIMARY_KEY + UNIQUE,
+            Pet.NAME to TEXT,
+            Pet.ALIVE to INTEGER,
+            Cat.LIVES_LEFT to INTEGER,
+            Dog.BARK_PITCH to TEXT
+            )
+
+        db.insert(Pet.TABLE_NAME,
+            Pet.DTYPE to "Cat",
+            Pet.ID to 1,
+            Pet.NAME to "Felix",
+            Pet.ALIVE to 1,
+            Cat.LIVES_LEFT to 9,
+            Dog.BARK_PITCH to ""
             )
         db.insert("Pets",
-            "id" to 1,
-            "name" to "Felix",
-            "alive" to 1
-            )
-        db.insert("Pets",
+            Pet.DTYPE to "Dog",
             "id" to 2,
             "name" to "Rufus",
-            "alive" to 1
+            "alive" to 1,
+            Cat.LIVES_LEFT to 0,
+            Dog.BARK_PITCH to "C4"
             )
         db.insert("Pets",
+            Pet.DTYPE to "Pet",
             "id" to 3,
             "name" to "Killer",
-            "alive" to 1
+            "alive" to 1,
+            Cat.LIVES_LEFT to 0,
+            Dog.BARK_PITCH to ""
             )
 
         }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         // Here you can upgrade tables, as usual
-        db.dropTable("Pets", true)
+        db.dropTable(Pet.TABLE_NAME, true)
+        onCreate(db)
         }
 
 
@@ -55,9 +70,18 @@ class VetBaseOpenHelper(context: Context) :
 val Context.database: VetBaseOpenHelper
     get() = VetBaseOpenHelper.getInstance(applicationContext)
 
-val petParser = rowParser { id: Int, name: String, alive: Int ->
-    val pet = Pet(id, name)
-    pet.alive = alive != 0
-    pet
+val petParser = rowParser {
+        dtype: String,
+        id: Int,
+        name: String,
+        alive: Int,
+        livesLeft: Int,
+        barkPitch: String ->
+    when (dtype) {
+        "Pet" -> Pet(id, name, alive != 0)
+        "Cat" -> Cat(id, name, alive != 0, livesLeft)
+        "Dog" -> Dog(id, name, alive != 0, barkPitch)
+        else -> throw IllegalArgumentException("no such type $dtype")
+        }
     }
 
