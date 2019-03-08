@@ -2,20 +2,17 @@ package dk.cphbusiness.vetapplication
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
-import android.util.Log
+import android.widget.ArrayAdapter
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_rest.*
 import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.longToast
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.uiThread
 import java.net.URL
 import java.net.URLEncoder
-import java.nio.charset.Charset
 import com.google.gson.reflect.TypeToken
-import org.json.JSONArray
-import org.json.JSONObject
+import kotlinx.android.synthetic.main.activity_simple.*
+import org.jetbrains.anko.toast
 
 
 //class Request(val url: String) {
@@ -32,29 +29,45 @@ class PetListType : TypeToken<ArrayList<Pet>>()
 
 fun getPets(): List<Pet> {
     val result = URL(petUrl).readText()
-    val jsonList = JSONArray(result)
-    val pets = mutableListOf<Pet>()
-    for (index in 0..jsonList.length() - 1) {
-        val jsonPet: JSONObject = jsonList[index] as JSONObject
-        pets.add(
-            Pet(
-                jsonPet.getInt("id"),
-                jsonPet.getString("name"),
-                jsonPet.getBoolean("alive")
-                )
-            )
-        }
+    val pets = gson.fromJson<Array<Pet>>(result, Array<Pet>::class.java).toList()
+
+//    val jsonList = JSONArray(result)
+//    val pets = mutableListOf<Pet>()
+//    for (index in 0..jsonList.length() - 1) {
+//        val jsonPet: JSONObject = jsonList[index] as JSONObject
+//        pets.add(
+//            Pet(
+//                jsonPet.getInt("id"),
+//                jsonPet.getString("name"),
+//                jsonPet.getBoolean("alive")
+//                )
+//            )
+//        }
 //    val petListType = PetListType().type
 //    return gson.fromJson<ArrayList<Pet>>(result, petListType::class.java)
     return pets
     }
 
+fun postPet(pet: Pet) {
+    val connection = URL(petUrl).openConnection()
+    connection.doOutput = true // Triggers POST.
+    connection.setRequestProperty("Accept-Charset", "UTF-8")
+    connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8")
+    connection.outputStream.use {
+        output -> output.write(gson.toJson(pet).toByteArray(Charsets.UTF_8))
+        }
+    connection.inputStream
+    }
+
 class RestActivity : AppCompatActivity() {
     val cphUrl = "https://openweathermap.org/city/2618425"
+    var webPets = mutableListOf<Pet>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_rest)
+        val adapter = PetListAdapter(this, webPets)
+        result_list.adapter = adapter
         get_button.onClick {
             doAsync {
                 // Request(cphUrl).run()
@@ -63,9 +76,19 @@ class RestActivity : AppCompatActivity() {
 
                 uiThread {
                     // longToast("Done")
-                    result_text.text.clear()
-                    pets.forEach { result_text.text.appendln(it.description) }
+                    webPets.clear()
+                    webPets.addAll(0, pets)
+                    adapter.notifyDataSetChanged()
+//                    result_list.text.clear()
+//                    pets.forEach { result_list.text.appendln(it.description) }
                     }
+                }
+            }
+        post_button.onClick {
+            val kyon = Pet(4711, "Kyon", true)
+            doAsync {
+                postPet(kyon)
+                uiThread { toast("Pet posted") }
                 }
             }
         }
@@ -92,9 +115,9 @@ class X {
         connection.doOutput = true // Triggers POST.
         connection.setRequestProperty("Accept-Charset", UTF8)
         connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=$UTF8")
-        connection.getOutputStream().use {
+        connection.outputStream.use {
             output -> output.write(query.toByteArray(utf8))
             }
-        val response = connection.getInputStream()
+        val response = connection.inputStream
         }
     }
