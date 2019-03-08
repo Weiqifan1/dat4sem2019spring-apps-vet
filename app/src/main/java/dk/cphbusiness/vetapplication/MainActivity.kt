@@ -15,5 +15,6 @@ class MainActivity : AppCompatActivity() {
         adapter_list_button.onClick { startActivity<AdapterActivity>() }
         recycle_view_button.onClick { startActivity<RecyclerActivity>() }
         recycler_db_button.onClick { startActivity<DatabaseActivity>() }
+        rest_button.onClick { startActivity<RestActivity>() }
     }
 }

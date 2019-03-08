@@ -12,6 +12,7 @@ import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_recycler.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast
+import org.jetbrains.anko.startActivity
 
 class RecyclerActivity : AppCompatActivity() {
 
@@ -35,7 +36,9 @@ class PetRecyclerAdapter(val pets: List<Pet>) :
             .inflate(R.layout.pet_item, parent, false)
         view.onClick {
             val name = view.findViewById<TextView>(R.id.name_label).text
-            parent.context.toast("Clicked! ${name}")
+            val id = view.getTag()
+            parent.context.startActivity<EditPetActivity>("id" to id)
+            this@PetRecyclerAdapter.notifyDataSetChanged()
             }
         return ViewHolder(view)
         }
@@ -47,7 +50,8 @@ class PetRecyclerAdapter(val pets: List<Pet>) :
         val name_label = view.findViewById<TextView>(R.id.name_label)
         val description_label = view.findViewById<TextView>(R.id.description_label)
         val pet = pets[position]
-
+        view.setTag(pet.id)
+        //view.setTag(2, pet.javaClass.name)
         name_label.text = pet.name
         description_label.text = pet.description
         }

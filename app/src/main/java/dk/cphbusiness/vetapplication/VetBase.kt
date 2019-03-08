@@ -5,17 +5,19 @@ import android.database.sqlite.SQLiteDatabase
 import org.jetbrains.anko.db.*
 import java.lang.IllegalArgumentException
 
-class VetBaseOpenHelper(context: Context) :
+class VetBaseOpenHelper(context: Context = App.instance) :
     ManagedSQLiteOpenHelper(context, "VetBase", null, 2) {
     companion object {
-        private var instance: VetBaseOpenHelper? = null
+        val instance by lazy { VetBaseOpenHelper() }
+
+        private var instancex: VetBaseOpenHelper? = null
 
         @Synchronized
         fun getInstance(context: Context): VetBaseOpenHelper {
-            if (instance == null) {
-                instance = VetBaseOpenHelper(context.getApplicationContext())
+            if (instancex == null) {
+                instancex = VetBaseOpenHelper(context.getApplicationContext())
             }
-            return instance!!
+            return instancex!!
         }
     }
 
@@ -68,7 +70,7 @@ class VetBaseOpenHelper(context: Context) :
     }
 
 val Context.database: VetBaseOpenHelper
-    get() = VetBaseOpenHelper.getInstance(applicationContext)
+    get() = VetBaseOpenHelper.instance
 
 val petParser = rowParser {
         dtype: String,
