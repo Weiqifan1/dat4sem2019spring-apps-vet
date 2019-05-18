@@ -11,10 +11,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        simple_list_button.onClick { startActivity<SimpleActivity>() }
-        adapter_list_button.onClick { startActivity<AdapterActivity>() }
-        recycle_view_button.onClick { startActivity<RecyclerActivity>() }
+        //simple_list_button.onClick { startActivity<SimpleActivity>() }
+        //adapter_list_button.onClick { startActivity<AdapterActivity>() }
+        //recycle_view_button.onClick { startActivity<RecyclerActivity>() }
         recycler_db_button.onClick { startActivity<DatabaseActivity>() }
-        rest_button.onClick { startActivity<RestActivity>() }
+        //rest_button.onClick { startActivity<RestActivity>() }
     }
 }
